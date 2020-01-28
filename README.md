@@ -19,7 +19,7 @@ This script accesses gbl.py to get variables. Currently, where this will live in
 
 Broken:
 
--Value of a variable doesn't print in GUI
+~~-Value of a variable doesn't print in GUI~~
 
 TODO:
 
