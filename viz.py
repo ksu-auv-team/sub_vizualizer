@@ -47,9 +47,9 @@ for i in topics:
     topicText.append(sg.Text('', visible=False, size=(30,1), key='{}'.format(i)))
 
 layout = [
-    [sg.Frame(layout=[      
+    [sg.Column(layout=[      
         *topicBoxes
-        ], title='Select topics to listen to:', relief=sg.RELIEF_SUNKEN),
+        ], scrollable=True, vertical_scroll_only=True),
         *topicText],
     [sg.Exit()]
 ]
