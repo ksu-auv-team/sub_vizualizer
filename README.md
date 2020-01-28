@@ -23,12 +23,12 @@ Broken:
 
 TODO:
 
--Create ROS subscriber and callback that dynamically subs to n topics
+-Create ROS subscriber and callback that dynamically subs to n topics. Currently using dummy values
 
 -Create whitelist that ignores gbl variables that we'll never care about
 
--Verify script's ability to get accurate gbl values. gbl.py variables likely aren't accessible by GUI unless gbl.py and GUI are   launched by the same console or something.
+-Verify script's ability to get accurate gbl values. gbl.py variables likely aren't accessible by GUI unless gbl.py and GUI are   launched by the same console or something. Currently using dummy values
 
--GUI values output should be to the right of the checkboxes
+~-GUI values output should be to the right of the checkboxes~
 
--GUI checkboxes should have a scrollbar
+~-GUI checkboxes should have a scrollbar~
