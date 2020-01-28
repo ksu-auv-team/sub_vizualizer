@@ -48,15 +48,16 @@ for i in gblVars:
 #Create objects for PySimpleGUi
 for i in topics:
     topicBoxes.append([sg.Checkbox('{}'.format(i), enable_events=True, default=False)])
-    topicText.append([sg.Text('{}:'.format(i), visible=False, key='{}'.format(i))])
+    topicText.append([sg.Text('', visible=False, size=(30,1), key='{}'.format(i))])
 
 layout = [                 
     [sg.Frame(layout=[      
-    *topicBoxes,
+*topicBoxes,
     ], title='Select topics to listen to:',title_color='red', relief=sg.RELIEF_SUNKEN, tooltip='Use these to set flags')],
-        *topicText,
+    *topicText,
     [sg.Exit()]
 ]
+
 
 window = sg.Window('Sub_Viz', layout)
 
@@ -70,7 +71,7 @@ while True:
     if type(event) == int:
         if values[event] == True:
             try:
-                window[topics[event]].Update('{}: {}'.format(topics[event], eval(topics[event])), visible=True)
+                window[topics[event]].update('{}: {}'.format(topics[event], eval(topics[event])), visible=True)
             except:
                 window[topics[event]].Update('{}: ERROR'.format(topics[event]))
         if values[event] == False:
@@ -78,7 +79,7 @@ while True:
     
     if event in (None, 'Exit'):      
         break      
-
+    
 window.close()
 
 
