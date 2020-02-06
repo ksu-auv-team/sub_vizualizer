@@ -13,44 +13,44 @@ def main():
     import gbl
     
     #Get all variables in gbl, remove the ones we don't care about
-    gblVars = dir(gbl)
-    gblVars = [gblVars for gblVars in gblVars if not gblVars.startswith('__')]
+    gbl_vars = dir(gbl)
+    gbl_vars = [gbl_vars for gbl_vars in gbl_vars if not gbl_vars.startswith('__')]
     
     #Colelct active topics from ROS
     topics = rospy.get_published_topics()
     
     #Separate topics and msg types into their own lists.
     #TODO: get real data from ROS, create a big ol switch to handle many msg formats
-    msgTypes = list(list(zip(*topics))[1])
+    msg_Types = list(list(zip(*topics))[1])
     topics = list(list(zip(*topics))[0])
     
     #Remove backslash in rostopic names. It breaks stuff
     for i in range(len(topics)):
         topics[i] = topics[i].replace('/', '')
     
-    topicBoxes = []
-    topicText = []
-    gblCommands = []
+    topic_boxes = []
+    topic_text = []
+    gbl_commands = []
     
     #TODO: Dynamically subscribe to n rostopics and get messages.
     for i in topics:
-        gblCommands.append('global {}; {} = "TODO" '.format(i,i))
+        gbl_commands.append('global {}; {} = "TODO" '.format(i,i))
     
-    topics.extend(gblVars)
+    topics.extend(gbl_vars)
     
-    for i in gblVars:
-        gblCommands.append('global {}; {} = gbl.{}'.format(i,i,i))
+    for i in gbl_vars:
+        gbl_commands.append('global {}; {} = gbl.{}'.format(i,i,i))
     
     #Create GUI objects based on the topics that were collected
     for i in topics:
-        topicBoxes.append([sg.Checkbox('{}'.format(i), enable_events=True, default=False)])
-        topicText.append(sg.Text('', visible=False, size=(30,1), key='{}'.format(i)))
+        topic_boxes.append([sg.Checkbox('{}'.format(i), enable_events=True, default=False)])
+        topic_text.append(sg.Text('', visible=False, size=(30,1), key='{}'.format(i)))
     
     layout = [
         [sg.Column(layout=[      
-            *topicBoxes
+            *topic_boxes
             ], scrollable=True, vertical_scroll_only=True),
-            *topicText],
+            *topic_text],
         [sg.Exit()]
     ]
     
@@ -66,7 +66,7 @@ def main():
         
         #Importing gbl again updates its values? Need to verify...
         import gbl
-        for i in gblCommands:
+        for i in gbl_commands:
             exec(i)
     
         if event == 'Timeout':
