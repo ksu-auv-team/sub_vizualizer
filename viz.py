@@ -13,12 +13,13 @@ sys.path.append('../subdriver/StateMachine')
 def main():
     import gbl
     
+    #Import config.txt if it exists
     try:
         file = open("config.txt","r")
         config = eval(file.read())
         file.close()
     except FileNotFoundError:
-        print("config.txt not found, will be created on GUI exit")
+        print("config.txt not found. One will be created on GUI exit.")
         config = {}
         
     #Get all variables in gbl, remove the ones we don't care about
@@ -40,7 +41,7 @@ def main():
             
     except ConnectionRefusedError as error:
         print(error)
-        print('is roscore running?')
+        print('Could not find ROS. Continuing without ROS.')
         topics = []
     
     
@@ -73,9 +74,10 @@ def main():
             if i == j:
                 topics.pop(topics.index(i))
     
+    
+    #Create GUI objects based on the topics that were collected
     topic_boxes = []
     topic_text = []
-    #Create GUI objects based on the topics that were collected
     for i in topics:
         try:
             if config[i]:
@@ -85,12 +87,13 @@ def main():
         except KeyError:
             topic_boxes.append([sg.Checkbox('{}'.format(i), enable_events=True, default=False)])
             
-        topic_text.append(sg.Text('', visible=False, size=(30,1), key='{}'.format(i)))
+        topic_text.append(sg.Text('', visible=False, size=(30,1), key='{}'.format(i),auto_size_text=True))
     
+    #Build the window layout for PySimpleGUI
     layout = [
-        [sg.Column(layout=[      
+        [sg.Column(layout=[
             *topic_boxes
-            ], scrollable=True, vertical_scroll_only=True,size=(100,100)),
+            ], scrollable=True, vertical_scroll_only=True,key='col'),
             *topic_text],
         [sg.Exit()]
     ]
@@ -100,25 +103,33 @@ def main():
     
     #GUI Event Loop
     #Loop occurrs every time a window.read() happens (either a button is pressed or timeout)
+    timeoutcount = 0
+    
     while True:
-        #timeout=250 -> ms until window updates. Increase to make GUI 
+        #timeout=250 -> ms until window updates. Decrease to make GUI 
         #readout more responsive at the cost of CPU time, and vise versa
-        event, values = window.read(timeout=250, timeout_key='Timeout') 
-        
+        tout = 250
+        event, values = window.read(timeout=tout, timeout_key='Timeout') 
+        # print(window['col'].get_size())
+        # print(window.size)
         #Importing gbl again updates its values? Need to verify...
         import gbl
         for i in gbl_commands:
             exec(i)
-    
         if event == 'Timeout':
             for i in range(len(values)):
                 if values[i] == True:
                     try:
-                        window[topics[i]].update('{}: {}'.format(topics[i], eval(topics[i])),visible=True)
+                        if (timeoutcount*(tout/1000) > 10):  
+                            window[topics[i]].update('{}: {}'.format(topics[i], eval(topics[i])),visible=True)
+                        else:
+                            window[topics[i]].update('{}: {}'.format(topics[i], eval(topics[i])),visible=True)
                     except:
                         window[topics[i]].update('{}: ERROR'.format(topics[i]))
                 else:
                     window[topics[i]].update(visible=False)
+        window['col'].expand(False,True)
+    
         if event in (None, 'Exit'):
             break
         
@@ -129,7 +140,7 @@ def main():
     file = open("config.txt","w+")
     file.write(str(values))
     file.close()
-
+    
 
 if __name__ == '__main__':
     main()
