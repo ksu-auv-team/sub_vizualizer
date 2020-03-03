@@ -6,8 +6,8 @@ import rospy
 import sys
 
 #Adjust this line to match the location of your gbl.py
-sys.path.append('../subdriver/StateMachine')
-
+# sys.path.append('../subdriver/StateMachine')
+sys.path.append('../submodules/subdriver/StateMachine')
 
     
 def main():
