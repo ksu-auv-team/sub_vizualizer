@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 # Sub Vizualizer GUI using PySimpleGUI
 
-import PySimpleGUI as sg      
-import rospy
+import PySimpleGUI as sg   
 import sys
+import rospy
 
 #Adjust this line to match the location of your gbl.py
 # sys.path.append('../subdriver/StateMachine')
 sys.path.append('../submodules/subdriver/StateMachine')
+# sys.path.append('../sub-utilities/submodules/subdriver/StateMachine')
 
-    
+reload = True
+
 def main():
     import gbl
+    global reload
     
     #Import config.txt if it exists
     try:
@@ -25,9 +28,8 @@ def main():
     #Get all variables in gbl, remove the ones we don't care about
     gbl_vars = dir(gbl)
     gbl_vars = [gbl_vars for gbl_vars in gbl_vars if not gbl_vars.startswith('__')]
-    
-            
-       
+
+
     try:
         #Collect active topics from ROS
         topics = rospy.get_published_topics()
@@ -39,18 +41,13 @@ def main():
         for i in range(len(topics)):
             topics[i] = topics[i].replace('/', '')
             
-    except ConnectionRefusedError as error:
+    except (ConnectionRefusedError , AttributeError) as error:
         print(error)
-        print('Could not find ROS. Continuing without ROS.')
+        print('Could not find ROS. Continuing without it.')
         topics = []
     
     
-    
-    
-    
-    
     gbl_commands = []
-    
     #TODO: Dynamically subscribe to n rostopics and get messages.
     for i in topics:
         gbl_commands.append('global {}; {} = "TODO" '.format(i,i))
@@ -89,17 +86,20 @@ def main():
             
         topic_text.append(sg.Text('', visible=False, size=(30,1), key='{}'.format(i),auto_size_text=True))
     
-    #Build the window layout for PySimpleGUI
-    layout = [
-        [sg.Column(layout=[
-            *topic_boxes
-            ], scrollable=True, vertical_scroll_only=True,key='col'),
-            *topic_text],
-        [sg.Exit()]
-    ]
+    def build_layout(topic_boxes, topic_text):
+        #Build the window layout for PySimpleGUI
+        layout = [
+            [sg.Column(layout=[
+                *topic_boxes
+                ], scrollable=True, vertical_scroll_only=True,key='col'),
+                *topic_text],
+            [sg.Exit(), sg.Button('Reload', key='Reload')]
+        ]
+        return layout
+    
     
     #Displays the Window
-    window = sg.Window('Sub_Viz', layout, resizable=True)
+    window = sg.Window('Sub_Viz', build_layout(topic_boxes, topic_text), resizable=True, finalize=True)
     
     #GUI Event Loop
     #Loop occurrs every time a window.read() happens (either a button is pressed or timeout)
@@ -124,13 +124,17 @@ def main():
                             window[topics[i]].update('{}: {}'.format(topics[i], eval(topics[i])),visible=True)
                         else:
                             window[topics[i]].update('{}: {}'.format(topics[i], eval(topics[i])),visible=True)
-                    except:
+                    except: 
                         window[topics[i]].update('{}: ERROR'.format(topics[i]))
                 else:
                     window[topics[i]].update(visible=False)
         window['col'].expand(False,True)
-    
+        
+        if event == ('Reload'):
+            reload = True 
+            break
         if event in (None, 'Exit'):
+            reload = False
             break
         
     # event, values = window.read()
@@ -143,7 +147,7 @@ def main():
     
 
 if __name__ == '__main__':
-    main()
-
+    while reload:
+        main()
 
 
