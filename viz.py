@@ -22,7 +22,7 @@ def main():
         config = eval(file.read())
         file.close()
     except FileNotFoundError:
-        print("config.txt not found. One will be created on GUI exit.")
+        rospy.loginfo("config.txt not found. One will be created on GUI exit.")
         config = {}
         
     #Get all variables in gbl, remove the ones we don't care about
@@ -42,8 +42,8 @@ def main():
             topics[i] = topics[i].replace('/', '')
             
     except (ConnectionRefusedError , AttributeError) as error:
-        print(error)
-        print('Could not find ROS. Continuing without it.')
+        rospy.loginfo(error)
+        rospy.loginfo('Could not find ROS. Continuing without it.')
         topics = []
     
     
@@ -63,7 +63,7 @@ def main():
         blacklist = blacklist_file.read().splitlines()
         blacklist_file.close()
     except FileNotFoundError:
-        print("blacklist.txt not found")
+        rospy.loginfo("blacklist.txt not found")
         blacklist = []
         
     for i in topics:
@@ -110,8 +110,8 @@ def main():
         #readout more responsive at the cost of CPU time, and vise versa
         tout = 250
         event, values = window.read(timeout=tout, timeout_key='Timeout') 
-        # print(window['col'].get_size())
-        # print(window.size)
+        # rospy.loginfo(window['col'].get_size())
+        # rospy.loginfo(window.size)
         #Importing gbl again updates its values? Need to verify...
         import gbl
         for i in gbl_commands:
